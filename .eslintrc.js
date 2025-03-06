@@ -9,7 +9,7 @@ module.exports = {
     ],
     parserOptions: {
       ecmaVersion: 'latest',
-      sourceType: 'module',
+      sourceType: 'module', // This applies to your *application* code (server.js, etc.)
     },
     rules: {
       'no-unused-vars': 'warn',
@@ -18,4 +18,12 @@ module.exports = {
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
     },
+    overrides: [
+      {
+        files: ['.eslintrc.js'], // Apply these settings ONLY to .eslintrc.js
+        parserOptions: {
+          sourceType: 'script', // Treat .eslintrc.js as a CommonJS script
+        },
+      },
+    ],
   };
