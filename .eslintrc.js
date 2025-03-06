@@ -1,29 +1,29 @@
-// .eslintrc.js
-module.exports = {
+   // .eslintrc.js
+   module.exports = {
     env: {
-      node: true,
-      es2021: true,
+        node: true,
+        es2021: true,
     },
     extends: [
-      'eslint:recommended',
+        'eslint:recommended',
     ],
     parserOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+        ecmaVersion: 'latest',
+        sourceType: 'module',
     },
     rules: {
-      'no-unused-vars': 'warn',
-      'no-console': 'off',
-      'indent': ['error', 2],
-      'quotes': ['error', 'single'],
-      'semi': ['error', 'always'],
+        'no-unused-vars': 'warn',
+        'no-console': 'off',
+        'indent': ['error', 2],
+        'quotes': ['error', 'single'],
+        'semi': ['error', 'always'],
     },
     overrides: [
-      {
+        {
         files: ['.eslintrc.js'],
         parserOptions: {
-          sourceType: 'script',
+            sourceType: 'script',
         },
-      },
+        },
     ],
-  };
+    };
