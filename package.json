@@ -4,7 +4,11 @@
     "description": "",
     "main": "server.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+      "test": "mocha",
+      "lint": "eslint ."
+    },
+    "engines": {  // <-- Add this section
+      "node": ">=18.0.0 <19.0.0" // Specifies Node.js 18.x.x
     },
     "keywords": [],
     "author": "",
@@ -12,5 +16,10 @@
     "dependencies": {
       "body-parser": "^1.20.2",
       "express": "^4.18.2"
+    },
+    "devDependencies": {
+      "chai": "^5.1.0",
+      "eslint": "^8.57.0",
+      "mocha": "^10.4.0"
     }
   }
