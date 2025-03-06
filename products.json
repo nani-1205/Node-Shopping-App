@@ -1,0 +1,44 @@
+[
+    {
+      "id": 1,
+      "name": "Colorful T-Shirt",
+      "description": "A vibrant and comfortable t-shirt.",
+      "price": 19.99,
+      "image": "/images/tshirt.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Stylish Jeans",
+      "description": "Classic denim jeans for a timeless look.",
+      "price": 49.99,
+      "image": "/images/jeans.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Cozy Hoodie",
+      "description": "A warm and soft hoodie, perfect for chilly days.",
+      "price": 34.99,
+      "image": "/images/hoodie.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Running Shoes",
+      "description": "Lightweight and breathable running shoes.",
+      "price": 79.99,
+      "image": "/images/shoes.jpg"
+    },
+    {
+        "id": 5,
+        "name": "Elegant Dress",
+        "description": "A beautiful dress for special occasions.",
+        "price": 69.50,
+        "image": "/images/dress.jpg"
+      },
+      {
+        "id": 6,
+        "name": "Leather Wallet",
+        "description": "A durable and stylish leather wallet.",
+        "price": 24.95,
+        "image": "/images/wallet.jpg"
+      }
+  ]
