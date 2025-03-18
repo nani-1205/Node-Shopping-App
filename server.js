@@ -6,10 +6,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Serve static files (CSS, JS, and Images)
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/images', express.static(path.join(__dirname, 'public/images'))); // Ensure images are served correctly
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -33,7 +30,7 @@ function writeProducts(products) {
     }
 }
 
-let cart = [];
+let cart = [];  // Stores cart items in memory
 
 // --- Routes ---
 
@@ -54,17 +51,16 @@ app.get('/', (req, res) => {
           <h1>My Colorful Shopping App</h1>
           <a href="/cart" class="cart-link">
           <img src="/images/cart-icon.png" alt="Cart Icon">
-           View Cart (<span id="cart-count">${cart.length}</span>)
+          View Cart (<span id="cart-count">${cart.length}</span>)
           </a>
         </header>
         <main>
             <div class="product-grid">`;
 
     products.forEach(product => {
-        const imagePath = product.image.startsWith('/images') ? product.image : `/images/${product.image}`;
         html += `
                 <div class="product">
-                   <img src="${imagePath}" alt="${product.name}" onerror="this.src='/images/placeholder.png'">
+                   <img src="${product.image}" alt="${product.name}">
                     <h2>${product.name}</h2>
                     <p>${product.description}</p>
                     <p class="price">$${product.price.toFixed(2)}</p>
@@ -75,6 +71,15 @@ app.get('/', (req, res) => {
     html += `
             </div>
         </main>
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+              fetch('/api/cart/count')
+              .then(response => response.json())
+              .then(data => {
+                  document.getElementById("cart-count").textContent = data.cartCount;
+              });
+          });
+        </script>
         <script src="/script.js"></script>
     </body>
     </html>`;
@@ -91,7 +96,7 @@ app.get('/cart', (req, res) => {
             ...cartItem,
             name: product ? product.name : 'Unknown Product',
             price: product ? product.price : 0,
-            image: product ? `/images/${product.image}` : '/images/placeholder.png'
+            image: product ? product.image : '/images/placeholder.png'
         };
     });
 
@@ -110,12 +115,13 @@ app.get('/cart', (req, res) => {
         <h1>Your Shopping Cart</h1>
         <a href="/">Back to Products</a>
       </header>
-        <main>
+      <main>
            <div class="cart-container">
             ${cartItemsWithDetails.length === 0 ? '<p class="empty-cart-message">Your cart is empty.</p>' : ''}
+
              ${cartItemsWithDetails.map(item => `
                 <div class="cart-item">
-                   <img src="${item.image}" alt="${item.name}" onerror="this.src='/images/placeholder.png'">
+                   <img src="${item.image}" alt="${item.name}">
                    <div class="item-details">
                       <h2>${item.name}</h2>
                       <p>Price: $${item.price.toFixed(2)}</p>
@@ -131,16 +137,22 @@ app.get('/cart', (req, res) => {
            </div>
            <p class="total-price">Total: $${totalPrice.toFixed(2)}</p>
              ${cartItemsWithDetails.length > 0 ? '<button id="checkout-btn">Checkout</button>' : ''}
-        </main>
-        <script src="/cart.js"></script>
+      </main>
+      <script src="/cart.js"></script>
     </body>
     </html>`;
+    
     res.send(html);
 });
 
-// --- API Endpoints (for AJAX/Fetch) ---
+// --- API Endpoints (for AJAX) ---
 
-// Add to Cart
+// Get Cart Count (API)
+app.get('/api/cart/count', (req, res) => {
+    res.json({ cartCount: cart.length });
+});
+
+// Add to Cart (API)
 app.post('/api/cart/add', (req, res) => {
     const productId = parseInt(req.body.productId);
     if (!productId) return res.status(400).json({ error: 'Invalid product ID' });
@@ -150,49 +162,50 @@ app.post('/api/cart/add', (req, res) => {
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
     const existingCartItem = cart.find(item => item.productId === productId);
-    existingCartItem ? existingCartItem.quantity++ : cart.push({ productId: productId, quantity: 1 });
+    if (existingCartItem) {
+        existingCartItem.quantity++;
+    } else {
+        cart.push({ productId, quantity: 1 });
+    }
 
     res.json({ message: 'Product added to cart', cartCount: cart.length });
 });
 
-// Update Cart Quantity
+// Update Cart Quantity (API)
 app.post('/api/cart/update', (req, res) => {
-    const productId = parseInt(req.body.productId);
-    const action = req.body.action;
-
-    if (!productId || !action) return res.status(400).json({ error: 'Invalid request' });
-
-    const cartItem = cart.find(item => item.productId === productId);
+    const { productId, action } = req.body;
+    const cartItem = cart.find(item => item.productId === parseInt(productId));
+    
     if (!cartItem) return res.status(404).json({ error: 'Item not found in cart' });
 
-    if (action === 'increase') cartItem.quantity++;
-    else if (action === 'decrease') {
+    if (action === 'increase') {
+        cartItem.quantity++;
+    } else if (action === 'decrease') {
         cartItem.quantity--;
-        if (cartItem.quantity <= 0) cart = cart.filter(item => item.productId !== productId);
-    } else return res.status(400).json({ error: 'Invalid action' });
+        if (cartItem.quantity <= 0) {
+            cart = cart.filter(item => item.productId !== parseInt(productId));
+        }
+    } else {
+        return res.status(400).json({ error: 'Invalid action' });
+    }
 
     res.json({ message: 'Cart updated', cartCount: cart.length });
 });
 
-// Remove from Cart
+// Remove from Cart (API)
 app.post('/api/cart/remove', (req, res) => {
     const productId = parseInt(req.body.productId);
-    if (!productId) return res.status(400).json({ error: 'Invalid request' });
-
-    const initialCartLength = cart.length;
     cart = cart.filter(item => item.productId !== productId);
-    if (cart.length === initialCartLength) return res.status(404).json({ error: 'Item not found in cart' });
-
     res.json({ message: 'Item removed from cart', cartCount: cart.length });
 });
 
-// Checkout
+// Checkout (API - Placeholder)
 app.post('/api/checkout', (req, res) => {
     cart = [];
     res.json({ message: 'Checkout successful! Your order is being processed.' });
 });
 
-// Start Server
+// Start the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server listening on port ${port}`);
 });
