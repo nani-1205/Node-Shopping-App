@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
     </head>
     <body>
         <header>
-          <h1>My Colorful Shopping App</h1>
+          <h1>Shopping App</h1>
           <a href="/cart" class="cart-link">
           <img src="/images/cart-icon.png" alt="Cart Icon">
           View Cart (<span id="cart-count">${cart.length}</span>)
